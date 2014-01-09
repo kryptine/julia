@@ -5,9 +5,9 @@
 
 MIRROR_HOST=http://d304tytmzqn1fl.cloudfront.net
 
-WGET=/usr/bin/wget
-CURL=/usr/bin/curl
-FETCH=/usr/bin/fetch
+WGET=$(which wget)
+CURL=$(which curl)
+FETCH=$(which fetch)
 
 TIMEOUT=15 # seconds
 WGET_OPTS="--no-check-certificate --tries=1 --timeout=$TIMEOUT"
@@ -29,11 +29,11 @@ fi
 MIRROR_BASENAME=`basename $1`
 MIRROR_URL="$MIRROR_HOST/$MIRROR_BASENAME"
 
-if [ -x $CURL ] && $CURL -V >/dev/null; then
-    GETURL="$CURL $CURL_OPTS"
-elif [ -x $WGET ] && $WGET -V >/dev/null; then
+if [ ! -z "$WGET" ] && $WGET -V >/dev/null; then
     GETURL="$WGET $WGET_OPTS"
-elif [ -x $FETCH ]; then
+elif [ ! -z "$CURL" ] && $CURL -V >/dev/null; then
+    GETURL="$CURL $CURL_OPTS"
+elif [ ! -z "$FETCH" ]; then
     GETURL="$FETCH $FETCH_OPTS"
 else
     exit 1
