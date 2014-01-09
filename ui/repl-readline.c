@@ -655,6 +655,36 @@ static char *do_completions(const char *ch, int c)
     char *ptr;
     int len, cnt;
 
+    if (rl_line_buffer[0] == ';')
+        return rl_filename_completion_function(ch, c);
+
+    int instring = 0;
+    int escaped = 0;
+    int nearquote = 0;
+    int i;
+    for (i = 0; i < rl_point; ++i) {
+        switch (rl_line_buffer[i]) {
+            case '\\':
+                if (instring)
+                    escaped ^= 1;
+                nearquote = 0;
+                break;
+            case '\'':
+                if (!instring)
+                    nearquote = 1;
+                break;
+            case '"':
+                if (!escaped && !nearquote)
+                    instring ^= 1;
+            default:
+                escaped = 0;
+                nearquote = 0;
+        }
+    }
+    if (instring) {
+        return rl_filename_completion_function(ch, c);
+    }
+
     if (c == 0) {
         // first time
         if (completions)
